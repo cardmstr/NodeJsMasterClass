@@ -2,15 +2,19 @@
 * Primary File for the API
 */
 
-//Internal NodeJS dependencies
 var http = require('http');
+var url = require('url');
 
-// the Server should respond to all requests with a string
 var server = http.createServer(function(req,res){
+  var parsedUrl = url.parse(req.url, true);
+  var path = parsedUrl.pathname;
+  var trimmedPath = path.replace(/^\/+|\/+$/g,'');
+
   res.end('Hello World!\n');
+
+  console.log('request received on this path: '+trimmedPath);
 });
 
-// start the server and have it listen on port 3000
 server.listen(3000, function(){
   console.log('server running on port 3000');
 });
