@@ -3,11 +3,33 @@
 */
 
 var http = require('http');
+var https = require('https');
 var url = require('url');
 var config = require('./config');
 var StringDecoder = require('string_decoder').StringDecoder;
+var fs = require('fs');
 
-var server = http.createServer(function(req,res){
+var httpServer = http.createServer(function(req,res){
+  unifiedServer(req,res);
+});
+server.listen(config.httpPort, function(){
+  console.log('server running on port '+config.httpPort+' in ' + config.envName);
+});
+
+
+var httpsServerOptions = {
+  'key' : fs.readFileSync('./https/key.pem'),
+  'cert' : fs.readFileSync('./https/cert.pem')
+};
+var httpsServer = https.createServer(httpsServerOptions, function(){
+  unifiedServer(req,res);
+});
+server.listen(config.httpsPort, function(){
+  console.log('server running on port '+config.httpsPort+' in ' + config.envName);
+});
+
+
+var unifiedServer = function(req,res){
   var parsedUrl = url.parse(req.url, true);
   var path = parsedUrl.pathname;
   var trimmedPath = path.replace(/^\/+|\/+$/g,'');
@@ -45,11 +67,7 @@ var server = http.createServer(function(req,res){
     });
 
   });
-});
-
-server.listen(config.port, function(){
-  console.log('server running on port '+config.port+' in ' + config.envName);
-});
+};
 
 var handlers = {};
 handlers.rabbit = function(data,callback){
