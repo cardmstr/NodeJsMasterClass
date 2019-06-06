@@ -4,6 +4,7 @@
 
 var http = require('http');
 var url = require('url');
+var config = require('./config');
 var StringDecoder = require('string_decoder').StringDecoder;
 
 var server = http.createServer(function(req,res){
@@ -46,8 +47,8 @@ var server = http.createServer(function(req,res){
   });
 });
 
-server.listen(3000, function(){
-  console.log('server running on port 3000');
+server.listen(config.port, function(){
+  console.log('server running on port '+config.port+' in ' + config.envName);
 });
 
 var handlers = {};
