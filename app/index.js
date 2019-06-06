@@ -23,16 +23,40 @@ var server = http.createServer(function(req,res){
   req.on('end',function(){
     buffer += decoder.end();
 
-    res.end('Hello World!\n');
+    var currHandler = typeof(router[trimmedPath]) !== 'undefined' ? router[trimmedPath] : handlers.notFound;
+    var data = {
+      'trimmedPath' : trimmedPath,
+      'queryStringObject' : queryStringObject,
+      'method' : method,
+      'headers' : headers,
+      'payload' : buffer
+    };
 
-    console.log('path: '+trimmedPath);
-    console.log(' method: '+method);
-    console.log(' query string parameters:',queryStringObject);
-    console.log('headers: ',headers);
-    console.log('payload: ',buffer);
+    currHandler(data,function(statusCode, payload){
+      statusCode = typeof(statusCode) == 'number' ? statusCode : 200;
+      payload = typeof(payload) == 'object' ? payload : {};
+      var payloadString = JSON.stringify(payload);
+      res.writeHead(statusCode);
+      res.end(payloadString);
+
+      console.log('response',statusCode,payloadString);
+    });
+
   });
 });
 
 server.listen(3000, function(){
   console.log('server running on port 3000');
 });
+
+var handlers = {};
+handlers.rabbit = function(data,callback){
+  callback(406,{'name' : 'follow the white rabbit'});
+};
+handlers.notFound = function(data,callback){
+  callback(404);
+};
+
+var router = {
+  'rabbit' : handlers.rabbit
+}
